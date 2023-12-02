@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<div id="CDT"></div>
+<span class="cdt_date" id="cdt_date"></span>
+
+    <script>
+        
+function CountdownTimer(elm, tl, mes) {
+this.initialize.apply(this, arguments);
+}
+
+CountdownTimer.prototype = {
+// 初期化処理
+initialize: function (elm, tl, mes) {
+  this.elem = document.getElementById(elm); // タイマー表示要素を取得
+  this.tl = tl; // カウントダウンの終了日時をセット
+  this.mes = mes; // カウントダウン終了後のメッセージをセット
+  this.tid = null; // タイマーIDを保持するための変数
+},
+// カウントダウン処理
+countDown: function () {
+  var timer = ''; // タイマー表示用の文字列
+  var today = new Date(); // 現在の日時を取得
+  var timeLeft = this.tl - today;
+
+  if (timeLeft <= 0) { // 残り時間が0以下なら
+    clearInterval(this.tid);
+    if (this.mes) {
+      this.elem.innerHTML = this.mes; // タイマーが終了した場合、終了メッセージを表示
+    }
+    return;
+  }
+
+  var day = Math.floor(timeLeft / (24 * 60 * 60 * 1000)); // 残り日数
+  var hour = Math.floor((timeLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)); // 残り時間（時）
+  var min = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000)) % 60; // 残り時間（分）
+  var sec = Math.floor((timeLeft % (60 * 1000)) / 1000) % 60 % 60; // 残り時間（秒）
+
+  if (day > 0) {
+    timer += '<small>残り</small><span class="cdt_num">' + day + '日' + hour + '時間' + min + '分' + sec + '秒' + '</span><small></small>'; // 残り日数を表示
+  } else {
+    timer += '<small>残り</small><span class="cdt_num">' + hour + '</span><small>時間</small>';
+    timer += '<span class="cdt_num">' + this.addZero(min) + '</span><small>分</small><span class="cdt_num">' + this.addZero(sec) + '</span><small>秒</small>'; // 残り時間を表示
+  }
+
+  this.elem.innerHTML = timer; // タイマー表示要素にタイマー情報を更新
+  this.tid = setTimeout(this.countDown.bind(this), 10); // 次のカウントダウンステップを予約
+},
+// 2桁になるようにゼロを追加
+addZero: function (num) {
+  return ('0' + num).slice(-2);
+}
+}
+
+// 開始＆終了日時の指定と日付の判別
+function CDT() {
+var myD = Date.now();
+var start = new Date('2023-11-29T00:00+09:00'); // 開始日時の指定
+var myS = start.getTime();
+var end = new Date('2023-12-10T00:00+09:00'); // 終了日時の指定
+var myE = end.getTime();
+
+// 今日が開始日前か期間中か終了日後かの判別
+if (myS <= myD && myE >= myD) {
+  var tl = myE; // ターゲット日時（終了日時）を設定
+} else if (myS > myD) {
+  var tl = myS; // ターゲット日時（開始日時）を設定
+} else {
+  var tl = myD; // ターゲット日時（現在の日時）を設定
+}
+
+var timer = new CountdownTimer('cdt_date', tl, '<small>終了しました</small>'); // カウントダウンタイマーを生成
+timer.countDown(); // カウントダウンタイマーの実行
+}
+
+window.onload = function () {
+CDT(); // ページが読み込まれたらカウントダウンを開始
+}
+
+    </script>
+</body>
+</html>
